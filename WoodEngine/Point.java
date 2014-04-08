@@ -1,4 +1,5 @@
 package WoodEngine;
+
 public class Point {
 	private final int x;
 	private final int y;
@@ -51,4 +52,15 @@ public class Point {
         Point point = (Point)obj;
         return ((x == point.getX()) && (y == point.getY()));
     }
+	
+	@Override
+	public int hashCode(){
+        return Integer.valueOf(x) ^ Integer.valueOf(y);
+    }
+	
+	@Override
+	public String toString(){
+		return "(" + x + ", " + y + ")";
+	}
+	
 }

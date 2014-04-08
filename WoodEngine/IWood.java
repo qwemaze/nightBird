@@ -12,7 +12,7 @@ public interface IWood {
 	 * @param start место появления
 	 * @throws IOException 
 	 */
-	void createWoodman(String name, Point start) throws IOException;
+	void createWoodman(String name, Point start, Point finish) throws IOException;
 	
 	/**
 	 * Перемещает лесного жителя.

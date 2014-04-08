@@ -1,6 +1,6 @@
 package WoodEngine;
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.HashMap;
 
 public class Wood implements IWood {
 	/**
@@ -10,10 +10,10 @@ public class Wood implements IWood {
 	 * 3 - life
 	 */
 	protected final char[][] m_woodMap;
-	protected HashSet<Woodman> m_woodmansSet;
+	protected HashMap<Woodman, Point> m_woodmansSet;
 	
 	public Wood (Character[] objs, int height, int width){
-		m_woodmansSet = new HashSet<Woodman>();
+		m_woodmansSet = new HashMap<Woodman, Point>();
 		m_woodMap = new char[width][height];
 		for (int j = 0; j < height; j++) {
 			for (int i = 0; i < width; i++) {
@@ -23,7 +23,7 @@ public class Wood implements IWood {
 	}
 	
 	protected void eraseWoodman(String name){
-		for (Woodman curWM : m_woodmansSet) {
+		for (Woodman curWM : m_woodmansSet.keySet()) {
 			if (curWM.GetName() == name) {
 				m_woodmansSet.remove(curWM);
 			}
@@ -31,17 +31,17 @@ public class Wood implements IWood {
 	}
 
 	@Override
-	public void createWoodman(String name, Point start) throws IOException {
+	public void createWoodman(String name, Point start, Point finish) throws IOException {
 		if(m_woodMap[start.getX()][start.getY()] == '1'){
 			throw new IOException("Bad start point");
 		}
-		m_woodmansSet.add(new Woodman(name, start));
+		m_woodmansSet.put(new Woodman(name, start), finish);
 		return;
 	}
 
 	@Override
 	public Action move(String name, Direction direction) throws IOException {
-		for (Woodman curWM : m_woodmansSet) {
+		for (Woodman curWM : m_woodmansSet.keySet()) {
 			if (curWM.GetName() == name) {
 				Point curLoc = curWM.GetLocation();
 				Point wannabeLoc = curLoc.MoveTo(direction);
@@ -59,10 +59,14 @@ public class Wood implements IWood {
 				}
 				case '0': { // floor
 					curWM.SetLocation(wannabeLoc);
+					if(curWM.GetLocation().equals(m_woodmansSet.get(curWM)))
+						return Action.Finish;
 					return Action.Ok;
 				}
 				case '2': { // trap
 					curWM.SetLocation(wannabeLoc);
+					if(curWM.GetLocation().equals(m_woodmansSet.get(curWM)))
+						return Action.Finish;
 					if (curWM.Kill()) {
 						eraseWoodman(name);
 						return Action.WoodmanNotFound;
@@ -71,6 +75,8 @@ public class Wood implements IWood {
 				}
 				case '3': { // life
 					curWM.SetLocation(wannabeLoc);
+					if(curWM.GetLocation().equals(m_woodmansSet.get(curWM)))
+						return Action.Finish;
 					curWM.AddLife();
 					return Action.Life;
 				}
